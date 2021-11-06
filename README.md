@@ -1,4 +1,5 @@
-# saleor-platform
+# ITEZ-Platform
+
 All ITEZ services started from a single repository
 
 *Keep in mind this repository is for local development only and is not meant to be deployed on any production environment!.*
@@ -33,7 +34,7 @@ $ docker-compose build
 
 5. Apply Django migrations:
 ```
-$ docker-compose run --rm api python manage.py migrate
+$ docker-compose run --rm api python manage.py makemigrations
 $ docker-compose run --rm api python manage.py migrate
 ```
 

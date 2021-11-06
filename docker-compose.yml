@@ -19,8 +19,7 @@ services:
       - redis
       - jaeger
     volumes:
-      - ./saleor/:/app:z
-      - ./saleor/tests/:/app/tests
+      - ./itez/:/app:z
       # shared volume between worker and api for media
       - itez-media:/itez/itez/media
     command: /start
@@ -31,14 +30,33 @@ services:
 
   frontend:
     build:
-      context: ./itez-storefront
+      context: ./itez-frontend
       dockerfile: ./Dockerfile.dev
     restart: unless-stopped
+    container_name: itez-api
     network_mode: "host"
     volumes:
-      - ./itez-storefront/:/app:cached
+      - ./itez-frontend/:/app:cached
       - /app/node_modules/
-    command: npm start
+    command: npm run  dev
+
+  frontend:
+    build:
+      context: ./itez-frontend
+      dockerfile: ./compose/local/node/Dockerfile
+    container_name: itez-frontend
+    depends_on:
+      - db
+      - api
+    volumes:
+      - ./itez-frontend/:/app:z
+      # http://jdlm.info/articles/2016/03/06/lessons-building-node-app-docker.html
+      - /app/node_modules
+    command: npm run dev
+    ports:
+      - "3000:3000"
+      # Expose browsersync UI: https://www.browsersync.io/docs/options/#option-ui
+      - "3001:3001"
 
   db:
     image: kartoza/postgis:9.6-2.4
