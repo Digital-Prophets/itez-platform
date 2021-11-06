@@ -1,0 +1,118 @@
+version: "3"
+
+services:
+  api:
+    ports:
+      - 8000:8000
+    build:
+      context: ./itez
+      dockerfile: ./compose/local/django/Dockerfile
+      args:
+        STATIC_URL: "/static/"
+    restart: unless-stopped
+    networks:
+      - itez-backend-tier
+    links:
+      - db
+    depends_on:
+      - db
+      - redis
+      - jaeger
+    volumes:
+      - ./saleor/:/app:z
+      - ./saleor/tests/:/app/tests
+      # shared volume between worker and api for media
+      - itez-media:/itez/itez/media
+    command: /start
+    env_file: common.env
+    environment:
+      - JAEGER_AGENT_HOST=jaeger
+      - FRONTEND_URL=http://localhost:3000/
+
+  frontend:
+    build:
+      context: ./itez-storefront
+      dockerfile: ./Dockerfile.dev
+    restart: unless-stopped
+    network_mode: "host"
+    volumes:
+      - ./itez-storefront/:/app:cached
+      - /app/node_modules/
+    command: npm start
+
+  db:
+    image: kartoza/postgis:9.6-2.4
+    restart: always
+    container_name: db
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data:Z
+    environment:
+      - ALLOW_IP_RANGE=0.0.0.0/0
+      - POSTGRES_USER=docker
+      - POSTGRES_PASS=docker
+      - POSTGRES_DBNAME=itez
+      - POSTGRES_MULTIPLE_EXTENSIONS=postgis,hstore,postgis_topology,postgis_raster,pgrouting
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U docker"]
+      timeout: 10s
+      retries: 5
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: library/redis:5.0-alpine
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+    networks:
+      - itez-backend-tier
+    volumes:
+      - itez-redis:/data
+
+  worker:
+    <<: *api
+    image: itez_local_celeryworker
+    restart: unless-stopped
+    networks:
+      - itez-backend-tier
+    container_name: celeryworker
+    depends_on:
+      - redis
+      - mailhog
+    env_file: common.env
+    ports: []
+    command: /start-celeryworker
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9411:9411"
+    restart: unless-stopped
+    networks:
+      - itez-backend-tier
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui. Visit http://localhost:8025/ to check emails
+    restart: unless-stopped
+    networks:
+      - itez-backend-tier
+
+volumes:
+  itez-db:
+    driver: local
+  itez-redis:
+    driver: local
+  itez-media:
+
+networks:
+  itez-backend-tier:
+    driver: bridge

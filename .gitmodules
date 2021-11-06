@@ -1,0 +1,6 @@
+[submodule "itez"]
+	path = itez
+	url = https://github.com/Digital-Prophets/itez.git
+[submodule "itez-frontend"]
+	path = itez-frontend
+	url = https://github.com/Digital-Prophets/itez-frontend.git
