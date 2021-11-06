@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  api:
+  api: &api
     ports:
       - 8000:8000
     build:
@@ -31,28 +31,25 @@ services:
   frontend:
     build:
       context: ./itez-frontend
-      dockerfile: ./compose/local/node/Dockerfile
+      dockerfile: Dockerfile
+    restart: unless-stopped
     container_name: itez-frontend
-    network_mode: "host"
     depends_on:
-      - db
       - api
     volumes:
       - ./itez-frontend/:/app:z
       # http://jdlm.info/articles/2016/03/06/lessons-building-node-app-docker.html
-      - /app/node_modules
+      - /app/node_modules/
     command: npm run dev
     ports:
       - "3000:3000"
-      # Expose browsersync UI: https://www.browsersync.io/docs/options/#option-ui
-      - "3001:3001"
 
   db:
     image: kartoza/postgis:9.6-2.4
     restart: always
     container_name: db
     volumes:
-      - local_postgres_data:/var/lib/postgresql/data:Z
+      - itez-db:/var/lib/postgresql/data:Z
     environment:
       - ALLOW_IP_RANGE=0.0.0.0/0
       - POSTGRES_USER=docker
@@ -63,6 +60,8 @@ services:
       test: ["CMD-SHELL", "pg_isready -U docker"]
       timeout: 10s
       retries: 5
+    networks:
+      - itez-backend-tier
     ports:
       - "5432:5432"
 
