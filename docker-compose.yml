@@ -31,20 +31,9 @@ services:
   frontend:
     build:
       context: ./itez-frontend
-      dockerfile: ./Dockerfile.dev
-    restart: unless-stopped
-    container_name: itez-api
-    network_mode: "host"
-    volumes:
-      - ./itez-frontend/:/app:cached
-      - /app/node_modules/
-    command: npm run  dev
-
-  frontend:
-    build:
-      context: ./itez-frontend
       dockerfile: ./compose/local/node/Dockerfile
     container_name: itez-frontend
+    network_mode: "host"
     depends_on:
       - db
       - api
