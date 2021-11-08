@@ -29,7 +29,7 @@ $ cd itez-platform
 
 4. Build the application:
 ```
-$ docker-compose build
+$ docker-compose up --build
 ```
 
 5. Apply Django migrations:
