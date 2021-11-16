@@ -29,7 +29,7 @@ $ cd itez-platform
 
 4. Build the application:
 ```
-$ docker-compose build
+$ docker-compose up --build
 ```
 
 5. Apply Django migrations:
@@ -63,7 +63,7 @@ In order to update all of them to their newest versions, run:
 $ git submodule update --remote
 ```
 
-You can find the latest version of Frontend, API backend in their individual repositories:
+You can find the latest version of API backend and the Frontend in their individual repositories:
 
 - https://github.com/Digital-Prophets/itez
 - https://github.com/Digital-Prophets/itez-frontend
@@ -128,6 +128,6 @@ $ docker system prune
 
 ## License
 
-Disclaimer: Everything you see here is open and free to use as long as you comply with the [license](https://github.com/mirumee/saleor-platform/blob/master/LICENSE). There are no hidden charges. We promise to do our best to fix bugs and improve the code.
+Disclaimer: Everything you see here is open and free to use as long as you comply with the [license](https://github.com/Digital-Prophets/itez-platform/blob/main/LICENSE). There are no hidden charges. We promise to do our best to fix bugs and improve the code.
 
 #### Crafted with ❤️ by [DigitalProphets](http://DigitalProphets.com)
