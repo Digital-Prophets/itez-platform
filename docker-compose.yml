@@ -26,7 +26,7 @@ services:
     env_file: common.env
     environment:
       - JAEGER_AGENT_HOST=jaeger
-      - FRONTEND_URL=http://localhost:3000/
+      - NEXT_PUBLIC_API_URI=http://localhost:8000/api
 
   frontend:
     build:
